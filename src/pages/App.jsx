@@ -1,26 +1,35 @@
 import styled from "styled-components";
 import Header from "../components/Header";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function App() {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
+  // localStorage.clear();
+  const previous = JSON.parse(localStorage.getItem("todo"))
+  const {register, handleSubmit, formState: { errors }} = useForm();
 
-  const [isData, setData] = useState([{ data: "" }]);
-
-  const onSubmit = (data) => {
-    arr.push(data.data);
+  const createTodo = (data) => {
+    if (previous) {
+      const addTodo = {
+        id: previous.length + 1,
+        name: data.data,
+      };
+      localStorage.setItem("todo", JSON.stringify([...previous, addTodo]));
+      location.reload();
+    } else {
+      localStorage.setItem("todo", JSON.stringify([{ id: 1, name: data.data }]));
+      location.reload();
+    }
   };
 
+  const updateTodo = () => {};
+
+  const deleteTodo = () => {};
   return (
     <div>
       <Header />
       <Container>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(createTodo)}>
           <input
             type="text"
             id="data"
@@ -31,14 +40,19 @@ function App() {
           <button>추가</button>
           {errors.data && <Error>일정을 입력해주세요.</Error>}
         </form>
+        <ul>
+          {JSON.parse(localStorage.getItem("todo"))
+            ? JSON.parse(localStorage.getItem("todo")).map((item) => (
+                <li key={item.id}>{item.name}</li>
+              ))
+            : ""}
+        </ul>
       </Container>
     </div>
   );
 }
 
 export default App;
-
-// https://velog.io/@bellecode20/localStorage%EC%97%90-state-%EC%A0%80%EC%9E%A5%ED%95%98%EA%B8%B0
 
 const Container = styled.div`
   width: 100%;
