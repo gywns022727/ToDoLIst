@@ -1,30 +1,35 @@
-import styled from "styled-components";
-import Header from "../components/Header";
-import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
+import styled from "styled-components";
+import { useForm } from "react-hook-form";
+import Header from "../components/Header";
+import List from "../components/List";
 
 function App() {
-  // localStorage.clear();
-  const previous = JSON.parse(localStorage.getItem("todo"))
-  const {register, handleSubmit, formState: { errors }} = useForm();
+  const previous = JSON.parse(localStorage.getItem("todo"));
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
   const createTodo = (data) => {
     if (previous) {
       const addTodo = {
-        id: previous.length + 1,
-        name: data.data,
+        id: previous.length,
+        text: data.data,
+        state: true,
       };
       localStorage.setItem("todo", JSON.stringify([...previous, addTodo]));
       location.reload();
     } else {
-      localStorage.setItem("todo", JSON.stringify([{ id: 1, name: data.data }]));
+      localStorage.setItem(
+        "todo",
+        JSON.stringify([{ id: 0, text: data.data, state: true }])
+      );
       location.reload();
     }
   };
 
-  const updateTodo = () => {};
-
-  const deleteTodo = () => {};
   return (
     <div>
       <Header />
@@ -32,21 +37,24 @@ function App() {
         <form onSubmit={handleSubmit(createTodo)}>
           <input
             type="text"
-            id="data"
             name="data"
-            {...register("data", { required: true })}
+            autoFocus
+            autoComplete="off"
             placeholder="일정을 입력해주세요."
+            {...register("data", { required: true })}
           />
           <button>추가</button>
           {errors.data && <Error>일정을 입력해주세요.</Error>}
         </form>
-        <ul>
-          {JSON.parse(localStorage.getItem("todo"))
-            ? JSON.parse(localStorage.getItem("todo")).map((item) => (
-                <li key={item.id}>{item.name}</li>
+        <ListContainer>
+          {previous
+            ? previous.map((item, index) => (
+                <List key={index} index={item.id} state={item.state}>
+                  {item.text}
+                </List>
               ))
             : ""}
-        </ul>
+        </ListContainer>
       </Container>
     </div>
   );
@@ -83,6 +91,11 @@ const Container = styled.div`
       box-shadow: 2px 2px 2px #eee;
     }
   }
+`;
+
+const ListContainer = styled.div`
+  margin-top: 30px;
+  width: 400px;
 `;
 
 const Error = styled.div`
