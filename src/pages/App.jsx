@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useForm } from "react-hook-form";
 import Header from "../components/Header";
-import List from "../components/List";
 
 function App() {
-  const previous = JSON.parse(localStorage.getItem("todo"));
+  const [previous, setPrevious] = useState(
+    JSON.parse(localStorage.getItem("todo"))
+  );
+
   const {
     register,
     handleSubmit,
@@ -13,22 +15,23 @@ function App() {
   } = useForm();
 
   const createTodo = (data) => {
-    if (previous) {
-      const addTodo = {
-        id: previous.length,
-        text: data.data,
-        state: true,
-      };
-      localStorage.setItem("todo", JSON.stringify([...previous, addTodo]));
-      location.reload();
-    } else {
-      localStorage.setItem(
-        "todo",
-        JSON.stringify([{ id: 0, text: data.data, state: true }])
-      );
-      location.reload();
-    }
+    setPrevious(
+      // !previous
+      // ?
+      { id: 0, text: data.data }
+      // : [...previous, { id: Number(previous), text: data.data }]
+    );
+    // location.reload();
   };
+
+  const deleteTodo = () => {
+    localStorage.clear();
+  };
+
+  useEffect(() => {
+    console.log(previous);
+    // localStorage.setItem("todo", JSON.stringify(previous));
+  }, [previous]);
 
   return (
     <div>
@@ -48,9 +51,15 @@ function App() {
         </form>
         <ListContainer>
           {previous
-            ? previous.map((item, index) => (
-                <List key={index} index={item.id} state={item.state}>
-                  {item.text}
+            ? previous.map((item) => (
+                <List key={item.id}>
+                  <p>{item.text}</p>
+                  <BtnContainer>
+                    <button className="update">수정</button>
+                    <button className="delete" onClick={deleteTodo}>
+                      삭제
+                    </button>
+                  </BtnContainer>
                 </List>
               ))
             : ""}
@@ -95,12 +104,47 @@ const Container = styled.div`
 
 const ListContainer = styled.div`
   margin-top: 30px;
-  width: 400px;
+  width: 350px;
 `;
 
 const Error = styled.div`
   padding: 5px 0 0 5px;
   font-size: 12px;
-  color: red;
   text-shadow: 2px 2px 2px #eee;
+  color: red;
+`;
+
+const List = styled.div`
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 50px;
+  border-radius: 2vh;
+  box-shadow: 2px 2px 2px 2px #eee;
+  background-color: #fffffe;
+  > p {
+    padding-left: 10px;
+    text-shadow: 2px 2px 2px 2px #eee;
+  }
+`;
+
+const BtnContainer = styled.div`
+  > button {
+    margin-right: 5px;
+    width: 64px;
+    height: 20px;
+    border-radius: 1vh;
+    border: none;
+    color: #eee;
+    box-shadow: 2px 2px 2px 2px #eee;
+  }
+  .update {
+    background-color: #4b89dc;
+  }
+
+  .delete {
+    background-color: #d1180b;
+  }
 `;
